@@ -78,13 +78,13 @@ fs.readFile('/tmp/hello', function (err, data) {
 
 ## 1.5 How does it all fit together?
 
-Though JavaScript is the core front-end language for the Node.js software it can be used anywhere a valid JavaScript engine is available such as the V8 JavaScript engine in the Chrome Browser. Other engines include Rhino, a Java based JavaScript engine developed by Mozilla; SpiderMonkey, a C implementation of the Rhino engine; and JavaScriptCore, the JavaScript engine for WebKit implementations and OS X environments that provide scripting JavaScript. 
+Though JavaScript is the core front-end language for browsers, it can be used anywhere a valid JavaScript engine is available such as Node.js with the v8 engine. Other engines include Rhino, a Java based JavaScript engine developed by Mozilla; SpiderMonkey, a C implementation of the Rhino engine; and JavaScriptCore, the JavaScript engine for WebKit implementations and OS X environments that provide scripting JavaScript. 
 
 Google's v8 compiles JavaScript to native machine code before executing it as opposed to interpreting or executing bytecode. In environments like the browser JavaScript can be executed on the fly with a method known as just-in-time (JIT) compilation. The Node.js software with libuv sits on top of v8 as a compilation of interfaces to the machine. With a JavaScript front-end to the Node.js, libuv, and v8 package one has access to a plethora of interfaces to the machine including file i/o, tcp, and http.
 
 The libuv platform abstraction layer provides a library for building scalable cross platform applications. It sits at the core of the Node.js application stack and is the best way to write C code that can run on BSD, Linux, and Windows based systems [1]. Before the integration of libuv, libev, an asynchronous event notification library, and libeio, an asynchronous i/o library for C were used [2]. As the project grew and a higher demand for Windows support amplified a solution was needed because of lack of support for the Windows system by libev. [3] When node-v0.9.0 was released libev was removed from libuv entirely [4] and a similar API was provided. Since the projects growth many other languages have implemented bindings such as Ruby, Go, and Python for libuv [5].
 
-So we have an elegant language like JavaScript, a powerful engine like v8, and a cross platform abstraction layer like libuv all working together in a software stack we call Node.js. On top of the all this power is a set of modules known as the Node.js core library which is what we consume as application developers. 
+So we have an elegant language like JavaScript, v8, a powerful JavaScript engine, and libuv, a cross platform abstraction layer all working together in a software stack we call Node.js. On top of the all this power is a set of modules known as the Node.js core library which is what we consume as application developers. 
 
 ### 1.5.1 Node.js Application stack
 
@@ -140,11 +140,11 @@ Your Node.js application requires the `http` module and creates a server. the `c
 [5] - https://github.com/joyent/libuv/wiki/Projects-that-use-libuv
 
 
-# 2 Understanding the basic links between v8, Node.js, and JavaScript
+# 2 Understanding the link between v8 and JavaScript
 
 In this section we will learn some of the basic links between data types, functions and th rest of the basic parts of JavaScript. We will understand how to create primitive data types in C++ and how to do the same in JavaScript. I make the assumption that you have a basic understanding of JavaScript and Node.js.
 
-## Isolates
+## 2.x Isolates
 
 In v8, isolates in represent an isolated instance of a v8 engine. Every v8 isolate has a completely unique state and objects from any isolate should not be mixed with other isolates. During initialization v8 creates a default isolate and enters its scope. Other isolates may be created and used with each other in parallel running in separate threads. An isolate may only be entered by one thread at any given time during execution. [1]
 
@@ -157,13 +157,14 @@ Isolate *isolate = Isolate::New();
 ***Figure 2.x - Getting the current isolate in C++ with V8***
 
 ```c++
+Isolate *isolate = Isolate::GetCurrent();
 ```
 
 ---
 
 [1] - http://izs.me/v8-docs/classv8_1_1Isolate.html
 
-## Contexts
+## 2.x Contexts
 
 In v8, a context is an execution environment that allows separate, unrelated, JavaScript to run in a single instance of v8 [1]. You must always declare the context in which you want any JavaScript to be executed in. The need for contexts in v8 comes from the need for multiple global objects existing like iframes or new windows or tabs in a browser. After a context is created you may create another and choose to leave and enter it when you please [1].
 
@@ -179,56 +180,140 @@ Persistent<Context> context = Context::New();
 
 [1] - https://developers.google.com/v8/embed#contexts
 
-## 2.1 Primitive Data types
+## 2.x Primitive Data types
 
-If you have ever opened up a console and played around JavaScript then you will quickly become familiar with the built-in primitive data types. Things like `Number` and `Boolean` quickly show up as soon as you start adding logic to a function. Declaring them is as easy as dfining a variable with a left hand assignment much like `var num = 4;` or `var bool = false;`. But, how exactly could these be declared in C++? Declaring a primitive in C++ is less trivial.
+If you have ever opened up a console and played around JavaScript then you will quickly become familiar with the built-in primitive data types. Things like `Number` and `Boolean` quickly show up as soon as you start adding logic to a function. Declaring them is as easy as defining a variable with a left hand assignment much like `var num = 4;` or `var bool = false;`. But, how exactly could these be declared in C++? Declaring a primitive in C++ is less trivial.
 
 
-***Figure 2.1 - Declaring a number in C++ with V8***
+***Figure 2.x - Declaring a number in C++ with V8***
 
 ```c++
 v8::Local<v8::Number> num = v8::Number::New(4);
 ```
 
-***Figure 2.2 - Declaring a boolean in C++ with V8***
+***Figure 2.x - Declaring a boolean in C++ with V8***
 
 ```c++
 v8::Local<v8::Boolean> bool = v8::Boolean::New(true);
 ```
 
-***Figure 2.3 - Declaring a string in C++ with V8***
+***Figure 2.x - Declaring a string in C++ with V8***
 
 ```c++
 v8::Local<v8::String> str = v8::String::New("hello world");
 ```
 
-***Figure 2.4 - Declaring a null value in C++ with V8***
+***Figure 2.x - Declaring a null value in C++ with V8***
 
 ```c++
 v8::Local<v8::Null> null = v8::Null();
 ```
 
-***Figure 2.5 - Declaring an undefined value in C++ with V8***
+***Figure 2.x - Declaring an undefined value in C++ with V8***
 
 ```c++
 v8::Local<v8::Undefined> undefined = v8::Undefined();
 ```
 
+## 2.x Objects
 
-## 2.2 Objects
+According to ECMA-262 section 4.2.1 *Objects* are not created in ways similar to C++, Java, or SmallTalk, but rather though literal notation or via *constructors* that execute an initialization function in the scope of a new object.
 
-## 2.3 Arrays
+***Figure 2.x - Creating a literal object in JavaScript***
 
-## 2.4 Functions
+```js
+var obj = {};
+console.log(obj); // {}
+```
 
-## 2.4 Methods
+***Figure 2.x - Creating an object via a constructor***
 
-## 2.5 Constructors
+```js
+function MyObject() {}
+var obj = new MyObject();
+console.log(obj); // {}
+```
 
-## 2.6 Prototypes
+Creating an object in v8 is a little more of a task but the same results above can be accomplished. For this section we will focus on create literal objects from the `v8::Object` class. To create an object in v8 we need to execute the static method `New()` on the `v8::Object` class.
 
-##  Scopes
+***Figure 2.x - Creating a new object in in C++ with V8***
 
-## Casting
+```c++
+v8::Local<v8::Object> obj = v8::Object::New();
+```
 
-## Exceptions
+In JavaScript we can set properties on objects using dot or bracket notation. We can do the same in v8 with a method call `Set()` on an object instance.
+
+***Figure 2.x - Setting a property on an object in JavaScript***
+
+```js
+obj.foo = 'bar';
+// or
+obj['foo'] = 'bar';
+```
+
+***Figure 2.x - Setting a property on an object in C++ with V8***
+
+```c++
+obj->Set(v8::String::New('foo'), v8::String::New('bar'));
+```
+
+Notice that we must create a new `v8::String` instance with the `New()` static method that accepts a `char *` or a C-style string as an argument.
+
+#### 2.x Cloning
+
+In v8 we can make shallow copies of objects using the `v8::Object::Clone()` static method. It accepts a 
+
+### 2.x Arrays
+
+### 2.x Regular Expression Objects
+
+### 2.x Date
+
+### 2.x Boolean Objects
+
+### 2.x Number Objects
+
+### 2.x String Objects
+
+### 2.x Function Objects
+
+## 2.x Functions
+
+## 2.x Methods
+
+## 2.x Constructors
+
+## 2.x Prototypes
+
+## 2.x Regular Expression
+
+## 2.x Global
+
+## 2.x Scopes
+
+## 2.x Casting
+
+## 2.x Exceptions
+
+# 3 Understanding the link between Node.js and v8
+
+## 3.x Node Marcos
+
+## 3.x The `node_isolate`
+
+## 3.x The `context`
+
+## 3.x The `context_scope`
+
+# 4 Building a native Node.js module
+
+## 4.x Requirements
+
+## 4.x Boilerplate
+
+# 5 Things to be aware of
+
+# 6 Extra goodies to make development easier
+
+# 7 Conclusion 
