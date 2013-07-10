@@ -234,6 +234,12 @@ var obj = new MyObject();
 console.log(obj); // {}
 ```
 
+### 2.x Using Objects
+
+In v8 we can do a lot of the same things we can do in JavaScript with objects like creating, setting properties, cloning, reading prototype, and more.
+
+#### 2.x Creating Objects
+
 Creating an object in v8 is a little more of a task but the same results above can be accomplished. For this section we will focus on create literal objects from the `v8::Object` class. To create an object in v8 we need to execute the static method `New()` on the `v8::Object` class.
 
 ***Figure 2.x - Creating a new object in in C++ with V8***
@@ -241,6 +247,8 @@ Creating an object in v8 is a little more of a task but the same results above c
 ```c++
 v8::Local<v8::Object> obj = v8::Object::New();
 ```
+
+#### 2.x Setting properties
 
 In JavaScript we can set properties on objects using dot or bracket notation. We can do the same in v8 with a method call `Set()` on an object instance.
 
@@ -255,16 +263,125 @@ obj['foo'] = 'bar';
 ***Figure 2.x - Setting a property on an object in C++ with V8***
 
 ```c++
-obj->Set(v8::String::New('foo'), v8::String::New('bar'));
+obj->Set(v8::String::New("foo"), v8::String::New("bar"));
 ```
 
 Notice that we must create a new `v8::String` instance with the `New()` static method that accepts a `char *` or a C-style string as an argument.
 
 #### 2.x Cloning
 
-In v8 we can make shallow copies of objects using the `v8::Object::Clone()` static method. It accepts a 
+In v8 we can make shallow copies of objects using the `Clone()` method found on an instance of `v8::Object`. All objects in copy will point to original references.
+
+***Figure 2.x - Cloning an object in C++ with V8***
+
+```c++
+v8::Local<v8::Object> obj = v8::Object::New();
+obj->Clone();
+```
+
+#### 2.x Getting the prototype of an object
+
+In JavaScript we have become accustomed to using `__proto__` for getting the prototype of an object. You can do the same in v8 with the `GetPrototype()` method on a `v8::Object` instance.
+
+***Figure 2.x - Getting the prototype of an object in C++ with V8***
+
+```c++
+v8::Local<v8::Object> obj = v8::Object::New();
+obj->GetPrototype();
+```
+
+#### 2.x Setting the prototype of an object
+
+In JavaScript we can set the prototype of an object via its constructor but in v8 we can use the `SetPrototype` method on an `v8::Object` instance.
+
+***Figure 2.x - Setting the prototype of an object in C++ with V8***
+
+```c++
+v8::Local<v8::Object> prototype = v8::Object::New();
+prototype->Set(v8::String::New("property"), v8::String::New("value"));
+v8::Local<v8::Object> obj = v8::Object::New();
+obj->SetPrototype(prototype);
+```
+
+#### 2.x Getting own property name
+
+In JavaScript we can retrieve an array of own property names for an object using `Object.getOwnPropertyNames()` excluding properties on the prototype chain. In v8 we can do the same on an `v8::Object` instance with the `GetOwnPropertyNames()` method.
+
+
+***Figure 2.x - Getting own property names of an object in C++ with V8***
+
+```c++
+v8::Local<v8::Object> obj = v8::Object::New();
+obj->Set(v8::String::New("foo"), v8::String::New("bar"));
+obj->Set(v8::String::New("biz"), v8::String::New("baz"));
+obj->GetOwnPropertyNames(); // should return an array containing the values ['foo', 'biz']
+```
+
+#### 2.x Getting property names including the prototype
+
+In JavaScript we normally cannot look at all the property names of an object and its prototype chain, but i v8 we can with the `GetPropertyNames()` method on an `v8::Object`
+
+***Figure 2.x - Getting property names of an object in C++ with V8***
+
+```c++
+obj->GetPropertyNames();
+```
+
+#### 2.x Getting the constructor of an object instance
+
+In JavaScript we can obtain the constructor of an object instance by simply referring to the `constructor` property on an object. In v8 we need to make a call to the `GetConstructor` method on a `v8::Object` instance.
+
+***Figure 2.x - Getting the constructor of an object instance in C++ with V8***
+
+```c++
+v8::Local<v8::Object> obj = v8::Object::New();
+obj->GetConstructor();
+```
+
+You can also retrieve the name of a constructor with the `GetConstructorName` method on a `v8::Object` instance.
+
+***Figure 2.x - Getting the name of a constructor of an object instance in C++ with V8***
+
+```c++
+v8::Local<v8::Object> obj = v8::Object::New();
+obj->GetConstructorName();
+```
 
 ### 2.x Arrays
+
+In JavaScript we are used to working arrays for all sorts of reasons. We can manage sets of data, queues, stacks, etc. We can push, pop, shift, unshift and do all sorts of sorting and filtering on an indexed set of data. In v8 we are not privileged to perform these tasks in a simple manner like we can in JavaScript, but we can make it work.
+
+#### 2.x Creating an array
+
+Creating an array in v8 is as simple as creating any other object. We must utilize the `New(int length = 0)` static method on the `v8::Array` class which accepts an optional `int` which determines the length of the initialized array.
+
+***Figure 2.x - Creating an array with no length in C++ with V8***
+
+```c++
+v8::Local<v8::Array> array = v8::Array::New();
+```
+
+***Figure 2.x - Creating an array with a length of 5 in C++ with V8***
+
+```c++
+v8::Local<v8::Array> array = v8::Array::New(5);
+```
+
+#### 2.x Element cloning
+
+In v8 we are provided with a method called `CloneElementAt(uint32_t index)` on a `v8::Array` instance that allows us to clone an element at a specified index in an array.
+
+***Figure 2.x - Cloning an element at a specified index in C++ with V8***
+
+```c++
+v8::Local<v8::Array> array = v8::Array::New();
+v8::Local<v8::Object> array[0] = v8::Object::New();
+array[0]->Set(
+  v8::String::New("name"), v8::String:New("werle")
+);
+
+v8::Local<v8::Objects> object = array->CloneElementAt(0);
+```
 
 ### 2.x Regular Expression Objects
 
