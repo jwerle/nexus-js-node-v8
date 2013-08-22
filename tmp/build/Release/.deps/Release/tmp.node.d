@@ -1,0 +1,1 @@
+cmd_Release/tmp.node := ./gyp-mac-tool flock ./Release/linker.lock c++ -shared -Wl,-search_paths_first -mmacosx-version-min=10.5 -arch x86_64 -L./Release -install_name @rpath/tmp.node  -o Release/tmp.node Release/obj.target/tmp/tmp.o -undefined dynamic_lookup

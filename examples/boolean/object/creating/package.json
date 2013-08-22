@@ -1,0 +1,16 @@
+{
+  "name": "boolean",
+  "version": "0.0.0",
+  "description": "",
+  "main": "boolean.js",
+  "scripts": {
+    "test": "make test",
+    "install": "node-gyp rebuild"
+  },
+  "author": "",
+  "license": "BSD",
+  "gypfile": true,
+  "dependencies": {
+    "bindings": "~1.1.0"
+  }
+}
